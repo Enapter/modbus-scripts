@@ -86,7 +86,7 @@ Only refilling is performed in case of first maintenance (from factory state).
 - Write random value in 90-99 range
 - Read register again to check that it contains new value
 
-- write_el_reboot.py
+**_write_el_reboot.py_**
 
 - Write 1 to reboot holding register (4)
 - Wait until electrolyser is rebooted
