@@ -1425,7 +1425,7 @@ def _run_maintenance(
                 f'contact Enapter customer support.'
             )
 
-    print('Maintenance mode completed OK')
+    _print_green('Maintenance mode completed OK')
 
 
 def parse_args() -> argparse.Namespace:
