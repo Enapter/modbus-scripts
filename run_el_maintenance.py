@@ -52,7 +52,7 @@ ELECTROLYTE_PRESENCE_CHECK_TIMEOUT: Final[int] = 10
 # Timeout (seconds) after writing to somehow guarantee that value is updated
 REGISTER_WRITE_TIMEOUT: Final[int] = 2
 
-# Electrolyte presence check is required after water pipe connection
+# Check pressure and electrolyte presence (optionally) after pipe connection
 MAX_WATER_PIPE_CONNECT_ATTEMPTS: Final[int] = 5
 
 INPUT_CONFIRMATION: Final[str] = 'YES'
