@@ -771,7 +771,7 @@ def _maintenance_on(
     Turn Maintenance mode on.
     """
     if initial_state is State.IDLE:
-        print(f'Turning Maintenance mode on...')
+        print('Turning Maintenance mode on...')
 
         _toggle_maintenance(modbus_client=modbus_client, enable=True)
 
@@ -794,7 +794,7 @@ def _maintenance_off(modbus_client: client.ModbusClient) -> None:
     """
     Turn Maintenance mode off.
     """
-    print(f'Turning Maintenance mode off...')
+    print('Turning Maintenance mode off...')
 
     _toggle_maintenance(modbus_client=modbus_client, enable=False)
 
@@ -808,7 +808,8 @@ def _maintenance_off(modbus_client: client.ModbusClient) -> None:
 
 
 def _check_refilling_state(
-    modbus_client: client.ModbusClient, expected_refilling_state: RefillingState
+    modbus_client: client.ModbusClient,
+    expected_refilling_state: RefillingState
 ) -> None:
     """
     Check specific refilling state.
@@ -875,8 +876,8 @@ def _perform_draining(modbus_client: client.ModbusClient) -> None:
     )
 
     print(
-        f'\n=================================================================\n'
-        f'============================ DRAINING ===========================\n\n'
+        '\n=================================================================\n'
+        '============================ DRAINING ===========================\n\n'
     )
     _wait_confirmation(
         prompt=(
@@ -898,8 +899,8 @@ def _perform_flushing(modbus_client: client.ModbusClient) -> None:
     Flushing procedure with required checks.
     """
     print(
-        f'\n=================================================================\n'
-        f'============================ FLUSHING ===========================\n\n'
+        '\n=================================================================\n'
+        '============================ FLUSHING ===========================\n\n'
     )
 
     _check_refilling_state(
@@ -925,7 +926,8 @@ def _perform_flushing(modbus_client: client.ModbusClient) -> None:
             f'\nNow electrolyser will be automatically refilled with'
             f' water.\nCurrent electrolyte level will be reported every'
             f' {ELECTROLYTE_PRESENCE_CHECK_TIMEOUT} seconds until flushing is'
-            f' complete.\nType {INPUT_CONFIRMATION} and press Enter to proceed:'
+            f' complete.\nType {INPUT_CONFIRMATION} and press Enter to'
+            f' proceed:'
         )
     )
 
@@ -940,8 +942,8 @@ def _perform_flushing(modbus_client: client.ModbusClient) -> None:
 
     _print_yellow(
         text=(
-            f'Now waiting until water is mixed with pump, this process will'
-            f' be monitored automatically...'
+            'Now waiting until water is mixed with pump, this process will'
+            ' be monitored automatically...'
         )
     )
 
@@ -965,8 +967,8 @@ def _perform_refilling(
     )
 
     print(
-        f'\n=================================================================\n'
-        f'=========================== REFILLING ===========================\n\n'
+        '\n=================================================================\n'
+        '=========================== REFILLING ===========================\n\n'
     )
 
     refill_to_level: ElectrolyteLevel = (
@@ -1081,8 +1083,8 @@ def _finish_refilling(modbus_client: client.ModbusClient) -> None:
 
     _print_yellow(
         text=(
-            f'Now waiting until water is mixed with pump, this process will'
-            f' be monitored automatically...'
+            'Now waiting until water is mixed with pump, this process will be'
+            ' monitored automatically...'
         )
     )
 
@@ -1110,7 +1112,9 @@ def _wait_electrolyte_level(
 
     while time.time() < wait_until:
         if (
-            electrolyte_level := _electrolyte_level(modbus_client=modbus_client)
+            electrolyte_level := _electrolyte_level(
+                modbus_client=modbus_client
+            )
         ) is expected_level:
             break
 
@@ -1195,8 +1199,8 @@ def _check_water_pipe_connection(
         else:
             _print_yellow(
                 text=(
-                    f'Water inlet pressure {actual_water_inlet_pressure} is not'
-                    f' in allowed bounds ({min_pressure}, {max_pressure})'
+                    f'Water inlet pressure {actual_water_inlet_pressure} is'
+                    f' not in allowed bounds ({min_pressure}, {max_pressure})'
                 )
             )
 
@@ -1233,8 +1237,8 @@ def _check_water_pipe_connection(
 
         _wait_confirmation(
             prompt=(
-                f'Problems with water pipe detected.\nPlease double check water'
-                f' pipe, type {INPUT_CONFIRMATION} and press Enter when'
+                f'Problems with water pipe detected.\nPlease double check'
+                f' water pipe, type {INPUT_CONFIRMATION} and press Enter when'
                 f' ready:\n'
             )
         )
@@ -1285,8 +1289,9 @@ def _run_maintenance_21(
 
         case _:
             raise MaintenanceModeException(
-                f'Got unexpected refilling state {actual_refilling_state.name},'
-                f' please contact Enapter customer support'
+                f'Got unexpected refilling state'
+                f' {actual_refilling_state.name}, please contact Enapter'
+                f' customer support'
             )
 
     if draining_required:
@@ -1336,8 +1341,9 @@ def _run_maintenance_4x(
 
         case _:
             raise MaintenanceModeException(
-                f'Got unexpected refilling state {actual_refilling_state.name},'
-                f' please contact Enapter customer support'
+                f'Got unexpected refilling state'
+                f' {actual_refilling_state.name}, please contact Enapter'
+                f' customer support'
             )
 
     if draining_required:
@@ -1456,13 +1462,13 @@ def main() -> None:
                 'WARNING! Please read carefully!\nThis script turns'
                 f' Maintenance mode on.\nMaintenance mode requires manual'
                 f' actions with electrolyser such as electrolyte draining,'
-                f' flushing (for EL4.x) and refilling.\nIf you fill electrolyte'
-                f' for the first time, only refilling is required.\nIf at some'
-                f' step electrolyte level is reported incorrectly, it may'
-                f' indicate hardware problems.\nIn this case terminate script'
-                f' with Ctrl+C and contact Enapter customer support.\nScript'
-                f' will be terminated anyway if draining/refilling is not'
-                f' complete during'
+                f' flushing (for EL4.x) and refilling.\nIf you fill'
+                f' electrolyte for the first time, only refilling is required.'
+                f'\nIf at some step electrolyte level is reported incorrectly,'
+                f' it may indicate hardware problems.\nIn this case terminate'
+                f' script with Ctrl+C and contact Enapter customer support.\n'
+                f'Script will be terminated anyway if draining/refilling is'
+                f' not complete during'
                 f' {DRAINING_TIMEOUT // 60}/{REFILLING_TIMEOUT // 60} minutes'
                 f' correspondingly.\nType {INPUT_CONFIRMATION} and press Enter'
                 f' if you really want to continue. Press Ctrl+С or Enter to'
@@ -1514,13 +1520,15 @@ def main() -> None:
         print(f'Modbus exception: {modbus_client.last_except_as_txt}')
 
         active_errors: str = (
-            ', '.join(_decode_errors(modbus_client=modbus_client)) or
-            'No errors'
+            ', '.join(
+                _decode_errors(modbus_client=modbus_client)
+            ) or 'No errors'
         )
 
         active_warnings: str = (
-            ', '.join(_decode_warnings(modbus_client=modbus_client)) or
-            'No warnings'
+            ', '.join(
+                _decode_warnings(modbus_client=modbus_client)
+            ) or 'No warnings'
         )
 
         _print_red(

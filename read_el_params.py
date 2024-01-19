@@ -204,7 +204,8 @@ def main() -> None:
         ):
             switch_value: bool = bool(
                 _read_input_registers(
-                    modbus_client=modbus_client, address=register.value, count=1
+                    modbus_client=modbus_client, address=register.value,
+                    count=1
                 )[0]
             )
 

@@ -17,7 +17,7 @@ from enum import IntEnum
 from typing import Any, Final, Self
 
 try:
-    from pyModbusTCP import client, utils
+    from pyModbusTCP import client
 
 except ImportError:
     print(
@@ -38,8 +38,8 @@ ERRORS_INPUT: Final[int] = 832
 
 class Error(IntEnum):
     """
-    Values for errors input register (832). Names may be used for human-readable
-    description.
+    Values for errors input register (832). Names may be used for
+    human-readable description.
     """
 
     UNKNOWN = -1

@@ -18,7 +18,7 @@ from enum import IntEnum
 from typing import Any, Final, Self
 
 try:
-    from pyModbusTCP import client, utils
+    from pyModbusTCP import client
 
 except ImportError:
     print(
@@ -113,7 +113,7 @@ def main() -> None:
                 )
             ) is None
         ):
-            print(f'Waiting for Modbus initialization...')
+            print('Waiting for Modbus initialization...')
 
             time.sleep(1)
 

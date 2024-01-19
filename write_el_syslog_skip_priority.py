@@ -142,7 +142,9 @@ def _write_multiple_registers(
     """
     Write over 16 bits register.
     """
-    modbus_client.write_multiple_registers(regs_addr=address, regs_value=values)
+    modbus_client.write_multiple_registers(
+        regs_addr=address, regs_value=values
+    )
 
     time.sleep(REGISTER_WRITE_TIMEOUT)
 
