@@ -12,12 +12,12 @@
 
 import argparse
 import sys
+import time
 
-from enum import StrEnum
-from typing import Any, Final, Self
+from typing import Final
 
 try:
-    from pyModbusTCP import client, utils
+    from pyModbusTCP import client
 
 except ImportError:
     print(
@@ -32,35 +32,23 @@ except ImportError:
 # Supported Python version
 MIN_PYTHON_VERSION: Final[tuple[int, int]] = (3, 10)
 
-# Register address
-DEVICE_MODEL_INPUT: Final[int] = 0
+# Registers addresses
+DRYER_REBOOT_HOLDING: Final[int] = 6020
+DRYER_SAVE_CONFIG_HOLDING: Final[int] = 6022
 
+# Timeout (seconds) after writing to somehow guarantee that value is updated
+REGISTER_WRITE_TIMEOUT: Final[int] = 2
 
-class DeviceModel(StrEnum):
-    """
-    Values for ProjectId input register (0).
-    """
+# Timeout (seconds) to complete dryer reboot
+REBOOT_TIMEOUT: Final[int] = 5
 
-    UNKNOWN = 'UNKNOWN'
-
-    # Specific value for EL21.
-    EL21 = 'EL21'
-
-    # Specific values for EL40.
-    EL40 = 'EL40'
-    ES40 = 'ES40'
-
-    # Specific value for EL41.
-    ES41 = 'ES41'
-
-    @classmethod
-    def _missing_(cls, value: Any) -> Self:
-        return cls.UNKNOWN
+# Error message usually indicating that DCN is disabled
+SLAVE_DEVICE_FAILURE: Final[str] = 'slave device failure'
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description='Reading EL device model with Modbus'
+        description='Write DRY reboot with Modbus'
     )
 
     parser.add_argument(
@@ -72,6 +60,28 @@ def parse_args() -> argparse.Namespace:
     )
 
     return parser.parse_args()
+
+
+def _write_single_register(
+    modbus_client: client.ModbusClient, address: int, value: int
+) -> None:
+    """
+    Write 16 bits register.
+    """
+    modbus_client.write_single_register(reg_addr=address, reg_value=value)
+
+    time.sleep(REGISTER_WRITE_TIMEOUT)
+
+
+def _read_reboot_register(modbus_client: client.ModbusClient) -> int:
+    """
+    Read dryer reboot holding register, address is 6020. Register type is
+    uint16, so number of registers to read is 16 / 16 = 1. Register returns
+    reboot counter while reading.
+    """
+    return modbus_client.read_holding_registers(
+        reg_addr=DRYER_REBOOT_HOLDING, reg_nb=1
+    )[0]
 
 
 def main() -> None:
@@ -89,28 +99,31 @@ def main() -> None:
     )
 
     try:
-        # Read ProjectId input register, address is 0. Register type is uint32,
-        # so number of registers to read is 32 / 16 = 2.
-        raw_device_model: list[int] = modbus_client.read_input_registers(
-            reg_addr=DEVICE_MODEL_INPUT, reg_nb=2
+        print(
+            f'Got initial reboot counter: '
+            f'{_read_reboot_register(modbus_client=modbus_client)}'
         )
 
-        print(f'Got raw device model data: {raw_device_model}')
+        print('Rebooting...')
 
-        # Convert raw response to single int value with pyModbusTCP utils.
-        converted_device_model: int = utils.word_list_to_long(
-            val_list=raw_device_model
-        )[0]
-
-        print(f'Got converted int value: {converted_device_model}')
-
-        # Decode converted int to human-readable device model.
-        decoded_device_model: DeviceModel = DeviceModel(
-            bytes.fromhex(f'{converted_device_model:x}').decode()
+        # Write reboot holding register, address is 6020. Register type is
+        # uint16.
+        _write_single_register(
+            modbus_client=modbus_client, address=DRYER_REBOOT_HOLDING, value=1
         )
+
+        # Write save config holding register, address is 6022. Register type is
+        # uint16.
+        _write_single_register(
+            modbus_client=modbus_client, address=DRYER_SAVE_CONFIG_HOLDING,
+            value=1
+        )
+
+        time.sleep(REBOOT_TIMEOUT)
 
         print(
-            f'Got decoded human-readable device model: {decoded_device_model}'
+            f'Got updated reboot counter: '
+            f'{_read_reboot_register(modbus_client=modbus_client)}'
         )
 
     except Exception as e:
@@ -121,6 +134,9 @@ def main() -> None:
         print(f'Exception occurred: {e}')
         print(f'Modbus error: {modbus_client.last_error_as_txt}')
         print(f'Modbus exception: {modbus_client.last_except_as_txt}')
+
+        if SLAVE_DEVICE_FAILURE in modbus_client.last_except_as_txt:
+            print('Please check that DCN is enabled')
 
         raise
 
