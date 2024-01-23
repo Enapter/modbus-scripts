@@ -40,6 +40,8 @@ python3 <path_to_script>/<script_name>.py --modbus-ip <address> --modbus-port <p
 
 ### Scripts description
 
+#### Electrolyser
+
 **_read_el_control_board_serial.py_**
 
 Read and decode control board serial number input (6) to a human-readable string value (e.g. '9E25E695-A66A-61DD-6570-50DB4E73652D').
@@ -104,3 +106,25 @@ Only refilling is performed in case of first maintenance (from factory state).
 
 NOTICE. Log skip priority holding register (4042) has int32 type, so it may contain any value in the appropriate
 range. Values less than 0 are considered as DISABLE_LOGGING (0), values greater than 6 are considered as ALL_MESSAGES (6). 
+
+#### Dryer
+
+**_read_dry_errors.py_**
+
+Read and decode errors input register (6000) to a list of human-readable errors names
+(e.g. 'TT00_INVALID_VALUE, TT01_INVALID_VALUE').
+
+**_read_dry_params.py_**
+
+Read and decode current hardware parameters:
+- state (input, 6021)
+- dryer input pressure (input, 6010)
+- dryer output pressure (input, 6012)
+
+**_write_dry_reboot.py_**
+
+- read reboot holding register (6020) and get current reboot counter
+- write 1 to reboot holding register (6020)
+- write 1 to save config holding register (6022)
+- wait until dryer is rebooted
+- read reboot holding register (6020) and get updated reboot counter
