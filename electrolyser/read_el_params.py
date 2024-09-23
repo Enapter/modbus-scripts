@@ -68,9 +68,8 @@ class SystemState(IntEnum):
     INTERNAL_ERROR_SYSTEM_NOT_INITIALIZED_YET = 0
     SYSTEM_IN_OPERATION = 1
     ERROR = 2
-    SYSTEM_IN_MAINTENANCE_MODE = 3
-    FATAL_ERROR = 4
-    SYSTEM_IN_EXPERT_MODE = 5
+    FATAL_ERROR = 3
+    SYSTEM_IN_EXPERT_MODE = 4
 
     @classmethod
     def _missing_(cls, value: Any) -> Self:
